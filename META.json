@@ -39,6 +39,9 @@
          }
       },
       "runtime" : {
+         "recommends" : {
+            "Class::Load::XS" : "0"
+         },
          "requires" : {
             "Class::Load" : "0",
             "Dancer::Plugin" : "0",
@@ -64,13 +67,13 @@
    "provides" : {
       "Dancer::Plugin::Adapter" : {
          "file" : "lib/Dancer/Plugin/Adapter.pm",
-         "version" : "0.001"
+         "version" : "0.002"
       }
    },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com//dancer-plugin-adapter/issues"
+         "web" : "https://github.com/dagolden/dancer-plugin-adapter/issues"
       },
       "homepage" : "https://metacpan.org/release/Dancer-Plugin-Adapter",
       "repository" : {
@@ -79,6 +82,6 @@
          "web" : "https://github.com/dagolden/dancer-plugin-adapter"
       }
    },
-   "version" : "0.001"
+   "version" : "0.002"
 }
 
