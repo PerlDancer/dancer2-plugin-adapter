@@ -7,10 +7,33 @@ package Dancer::Plugin::Adapter;
 # VERSION
 
 use Dancer::Plugin;
+use Dancer ':syntax';
 use Class::Load qw/try_load_class/;
 
-my %objects;
+my %singletons;
 my $conf;
+
+my %save_by_scope = (
+  singleton => sub { $singletons{ $_[0] } = $_[1] },
+  session => sub {
+    my $hr = session("_dpa") || {};
+    $hr->{ $_[0] } = $_[1];
+    session( "_dpa", $hr );
+  },
+  request => sub {
+    my $hr = var("_dpa") || {};
+    $hr->{ $_[0] } = $_[1];
+    var( "_dpa", $hr );
+  },
+  none => sub { },
+);
+
+my %fetch_by_scope = (
+  singleton => sub { $singletons{ $_[0] } },
+  session   => sub { my $hr = session("_dpa") || {}; $hr->{ $_[0] }; },
+  request   => sub { my $hr = var("_dpa") || {}; $hr->{ $_[0] }; },
+  none      => sub { },
+);
 
 register service => sub {
   my ( $self, $name ) = plugin_args(@_);
@@ -21,13 +44,21 @@ register service => sub {
 
   $conf ||= plugin_setting();
 
-  # return cached object if already created
-  return $objects{$name} if defined $objects{$name};
-
-  # otherwise, instantiate the object from config settings
+  # ensure service is defined
   my $object_conf = $conf->{$name}
     or die "No configuration for Adapter '$name'";
 
+  # set scope, but default to 'request' if not set
+  my $scope = $conf->{$name}{scope} || 'request';
+  unless ( $fetch_by_scope{$scope} ) {
+    die "Scope '$scope' is invalid";
+  }
+
+  # return cached object if already created
+  my $cached = $fetch_by_scope{$scope}->($name);
+  return $cached if defined $cached;
+
+  # otherwise, instantiate the object from config settings
   my $class = $object_conf->{class}
     or die "No class specified for Adapter '$name'";
 
@@ -46,7 +77,9 @@ register service => sub {
   my $object = eval { $class->$new(@options) }
     or die "Could not create $class object: $@";
 
-  return $objects{$name} = $object;
+  # cache by scope
+  $save_by_scope{$scope}->( $name, $object );
+  return $object;
 };
 
 register_plugin for_versions => [ 1, 2 ];
@@ -63,6 +96,7 @@ register_plugin for_versions => [ 1, 2 ];
     Adapter:
       ua:
         class: HTTP::Tiny
+        scope: request
         options:
           max_redirect: 3
 
@@ -98,6 +132,7 @@ In your config.yml, you put this:
     Adapter:
       postmark:
         class: WWW::Postmark
+        scope: singleton
         options: POSTMARK_API_TEST
 
 In your production config.yml, you can replace 'POSTMARK_API_TEST' with your
@@ -128,6 +163,16 @@ One or more objects are defined by C<< NAME => HASHREF >> pairs.  The hash
 reference for each NAME must contain a 'class' key, whose value is the class
 to wrap.
 
+The 'scope' key determines how long the generated object persists.  The choice
+of scope will depend on whether the object holds onto any state that should not
+last across requests or users.  The following scope values are allowed:
+
+=for :list
+* C<request> -- (default) the object persists in the C<vars> hash for the duration of the request
+* C<singleton> -- the objects persists in a private, lexical hash for the duration of the process
+* C<session> -- the object persists in the C<session> hash for the duration of the session
+* C<none> -- the object is not cached; a fresh object is created on each call
+
 If the hash reference contains an 'options' key, its value will be dereferenced
 (if it is a hash or array reference) and passed to C<new()> when the object is
 created.  Note that if the class requires a reference for the constructor,
@@ -138,6 +183,7 @@ you have to wrap it in an extra array.  E.g.
     Adapter:
       foo:
         class: Foo::Bar
+        scope: request 
         options:
           -
             wibble: wobble
@@ -159,21 +205,28 @@ can be specified with the 'constructor' key.
   # constructor called as:
   File::Temp->newdir()
 
+When caching under C<request> or C<session> scope, Dancer::Plugin::Adaptor uses
+the key C<_dpa> in the C<vars> or C<session> hash, respectively.
+
 =head1 USAGE
 
 =head2 service
 
-  service($name);
+  $object = service($name);
 
-This function returns the object corresponding to the name defined in
-the configuration file.  The object is created on demand and cached
-for future use.
+This function returns the object corresponding to the name defined in the
+configuration file.  The object is created on demand and may be cached for
+future use based on its C<scope> configuration option.
 
 =head1 SEE ALSO
 
 =for :list
 * L<Dancer>
 * L<Dancer::Plugin>
+
+=head1 ACKNOWLEDGMENTS
+
+Thank you to Matt S. Trout for suggesting the 'scope' controls.
 
 =cut
 

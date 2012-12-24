@@ -2,6 +2,16 @@ Revision history for Dancer-Plugin-Adapter
 
 {{$NEXT}}
 
+  [ADDED]
+
+  - Added 'scope' option to control lifecycle of created objects
+
+  [CHANGED]
+
+  - Default scope is now 'request' instead of (effectively) 'singleton' in
+    the previous implementation.  This makes the default behavior safer to
+    ensure data is not leaked between requests.
+
 0.002     2012-12-14 12:28:27 America/New_York
 
   [DOCUMENTATION]

@@ -44,6 +44,7 @@
          },
          "requires" : {
             "Class::Load" : "0",
+            "Dancer" : "0",
             "Dancer::Plugin" : "0",
             "perl" : "5.008001",
             "strict" : "0",
@@ -55,10 +56,10 @@
             "WWW::Postmark" : "0"
          },
          "requires" : {
-            "Dancer" : "0",
             "File::Find" : "0",
             "File::Temp" : "0.19",
             "HTTP::Tiny" : "0",
+            "LWP::UserAgent" : "0",
             "Test::More" : "0.96",
             "Test::TCP" : "0"
          }
@@ -67,7 +68,7 @@
    "provides" : {
       "Dancer::Plugin::Adapter" : {
          "file" : "lib/Dancer/Plugin/Adapter.pm",
-         "version" : "0.002"
+         "version" : "0.003"
       }
    },
    "release_status" : "stable",
@@ -82,6 +83,6 @@
          "web" : "https://github.com/dagolden/dancer-plugin-adapter"
       }
    },
-   "version" : "0.002"
+   "version" : "0.003"
 }
 
