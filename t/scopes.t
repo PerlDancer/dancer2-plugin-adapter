@@ -4,6 +4,7 @@ use Test::More 0.96 import => ['!pass'];
 
 use File::Temp 0.19; # newdir
 use LWP::UserAgent;
+use JSON;
 use Test::TCP;
 
 use Dancer ':syntax';

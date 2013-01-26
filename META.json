@@ -4,7 +4,7 @@
       "David Golden <dagolden@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300029, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "apache_2_0"
    ],
@@ -59,6 +59,7 @@
             "File::Find" : "0",
             "File::Temp" : "0.19",
             "HTTP::Tiny" : "0",
+            "JSON" : "0",
             "LWP::UserAgent" : "0",
             "Test::More" : "0.96",
             "Test::TCP" : "0"
@@ -68,7 +69,7 @@
    "provides" : {
       "Dancer::Plugin::Adapter" : {
          "file" : "lib/Dancer/Plugin/Adapter.pm",
-         "version" : "0.003"
+         "version" : "0.004"
       }
    },
    "release_status" : "stable",
@@ -83,6 +84,6 @@
          "web" : "https://github.com/dagolden/dancer-plugin-adapter"
       }
    },
-   "version" : "0.003"
+   "version" : "0.004"
 }
 
