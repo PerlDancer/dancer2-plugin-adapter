@@ -39,7 +39,7 @@ register service => sub {
   my ( $self, $name ) = plugin_args(@_);
 
   unless ($name) {
-    die "Dancer::Plugin::Adapter::service() requires a name argumenet";
+    die "Dancer::Plugin::Adapter::service() requires a name argument";
   }
 
   $conf ||= plugin_setting();
