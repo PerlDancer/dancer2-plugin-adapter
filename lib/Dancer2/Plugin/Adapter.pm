@@ -2,12 +2,12 @@ use 5.008001;
 use strict;
 use warnings;
 
-package Dancer::Plugin::Adapter;
+package Dancer2::Plugin::Adapter;
 # ABSTRACT: Wrap any simple class as a service for Dancer
 # VERSION
 
-use Dancer::Plugin;
-use Dancer ':syntax';
+use Dancer2::Plugin;
+use Dancer2 ':syntax';
 use Class::Load qw/try_load_class/;
 
 my %singletons;
@@ -39,7 +39,7 @@ register service => sub {
   my ( $self, $name ) = plugin_args(@_);
 
   unless ($name) {
-    die "Dancer::Plugin::Adapter::service() requires a name argument";
+    die "Dancer2::Plugin::Adapter::service() requires a name argument";
   }
 
   $conf ||= plugin_setting();
@@ -102,7 +102,7 @@ register_plugin for_versions => [ 1, 2 ];
 
   # in your app
 
-  use Dancer::Plugin::Adapter;
+  use Dancer2::Plugin::Adapter;
 
   get '/proxy/:url' => sub {
     my $res = service('ua')->get( params->{'url'} );
@@ -116,11 +116,11 @@ register_plugin for_versions => [ 1, 2 ];
 
 =head1 DESCRIPTION
 
-The problem: you want to use some perl class in your Dancer app, but there's
+The problem: you want to use some perl class in your Dancer2 app, but there's
 no plugin for it.
 
 The solution: as long as the class needs only static data to construct an
-object, then C<Dancer::Plugin::Adaptor> can do the wrapping for you.  Think
+object, then C<Dancer2::Plugin::Adaptor> can do the wrapping for you.  Think
 of it as a "just-in-time" plugin (or maybe a poor-man's L<Bread::Board>).
 
 Here's another example: you want to send emails via
@@ -153,7 +153,7 @@ Then, in your application, here's how you use it:
       return $@ ? "Error: $@" : "Mail sent";
     };
 
-C<Dancer::Plugin::Adapter> takes care of constructing and caching the
+C<Dancer2::Plugin::Adapter> takes care of constructing and caching the
 L<WWW::Postmark> object based on the configuration data, and lets you access
 the object with the C<service()> function.
 
@@ -221,8 +221,8 @@ future use based on its C<scope> configuration option.
 =head1 SEE ALSO
 
 =for :list
-* L<Dancer>
-* L<Dancer::Plugin>
+* L<Dancer2>
+* L<Dancer2::Plugin>
 
 =head1 ACKNOWLEDGMENTS
 
