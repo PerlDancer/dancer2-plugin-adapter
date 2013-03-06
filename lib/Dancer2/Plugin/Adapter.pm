@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 package Dancer2::Plugin::Adapter;
-# ABSTRACT: Wrap any simple class as a service for Dancer
+# ABSTRACT: Wrap any simple class as a service for Dancer2
 # VERSION
 
 use Dancer2::Plugin;
@@ -76,7 +76,7 @@ register service => sub {
   return $object;
 };
 
-register_plugin for_versions => [ 1, 2 ];
+register_plugin for_versions => [ 2 ];
 
 1;
 
