@@ -7,9 +7,6 @@ use LWP::UserAgent;
 use JSON;
 use Test::TCP;
 
-use Dancer ':syntax';
-use Dancer::Plugin::Adapter;
-
 test_tcp(
   client => sub {
     my $port = shift;
@@ -34,8 +31,6 @@ test_tcp(
     diag $@ if $@;
     is( $first->{singleton}, $second->{singleton},
       "singleton scope preserved across requests" );
-    is( $first->{session}, $second->{session},
-      "session scope preserved across requests" );
     isnt( $first->{request}, $second->{request},
       "request scope varies across requests" );
 
@@ -44,20 +39,21 @@ test_tcp(
     diag $@ if $@;
     is( $first->{singleton}, $third->{singleton},
       "singleton scope preserved across sessions" );
-    isnt( $first->{session}, $third->{session},
-      "session scope varies across sessions" );
 
   },
 
   server => sub {
     my $port = shift;
 
+    use Dancer2;
+    use Dancer2::Plugin::Adapter;
+
     set confdir => '.';
-    set session => 'Simple';
     set port    => $port, startup_info => 0;
 
     set show_errors => 1;
     set serializer  => 'JSON';
+    set session => 'Simple';
 
     set plugins => {
       Adapter => {
@@ -65,11 +61,6 @@ test_tcp(
           class       => 'File::Temp',
           constructor => 'newdir',
           scope       => 'singleton',
-        },
-        session_tempdir => {
-          class       => 'File::Temp',
-          constructor => 'newdir',
-          scope       => 'session',
         },
         request_tempdir => {
           class       => 'File::Temp',
@@ -87,7 +78,6 @@ test_tcp(
     get '/' => sub {
       return {
         singleton    => "" . service("singleton_tempdir"),
-        session      => "" . service("session_tempdir"),
         request      => "" . service("request_tempdir"),
         request_copy => "" . service("request_tempdir"),
         fresh        => "" . service("none_tempdir"),
@@ -95,7 +85,8 @@ test_tcp(
       };
     };
 
-    Dancer->dance;
+    Dancer2->runner->server->port($port);
+    start;
   },
 );
 

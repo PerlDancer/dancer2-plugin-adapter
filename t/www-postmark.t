@@ -4,9 +4,6 @@ use Test::More 0.96 import => ['!pass'];
 
 use Class::Load qw/try_load_class/;
 use Test::TCP;
-use Dancer ':syntax';
-use Dancer::Plugin::Adapter;
-
 try_load_class('WWW::Postmark')
   or plan skip_all => "WWW::Postmark required to run these tests";
 
@@ -26,6 +23,9 @@ test_tcp(
 
   server => sub {
     my $port = shift;
+
+    use Dancer2 ':syntax';
+    use Dancer2::Plugin::Adapter;
 
     set confdir => '.';
     set port => $port, startup_info => 0;
@@ -54,7 +54,8 @@ test_tcp(
       return $@ ? "Error: $@" : "Mail sent";
     };
 
-    Dancer->dance;
+    Dancer2->runner->server->port($port);
+    start;
   },
 );
 

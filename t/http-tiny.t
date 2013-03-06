@@ -8,9 +8,6 @@ use Test::TCP;
 HTTP::Tiny->new->get("http://google.com/")->{success}
   or plan skip_all => "google.com not available";
 
-use Dancer ':syntax';
-use Dancer::Plugin::Adapter;
-
 test_tcp(
   client => sub {
     my $port = shift;
@@ -21,6 +18,9 @@ test_tcp(
   },
   server => sub {
     my $port = shift;
+
+    use Dancer2;
+    use Dancer2::Plugin::Adapter;
 
     set confdir => '.';
     set port => $port, startup_info => 0;
@@ -46,7 +46,8 @@ test_tcp(
       return $response->{content};
     };
 
-    Dancer->dance;
+    Dancer2->runner->server->port($port);
+    start;
   },
 );
 

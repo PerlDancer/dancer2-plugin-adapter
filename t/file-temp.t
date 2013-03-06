@@ -6,9 +6,6 @@ use File::Temp 0.19; # newdir
 use HTTP::Tiny;
 use Test::TCP;
 
-use Dancer ':syntax';
-use Dancer::Plugin::Adapter;
-
 test_tcp(
   client => sub {
     my $port = shift;
@@ -21,6 +18,9 @@ test_tcp(
   },
 
   server => sub {
+    use Dancer2;
+    use Dancer2::Plugin::Adapter;
+
     my $port = shift;
 
     set confdir => '.';
@@ -46,7 +46,8 @@ test_tcp(
       }
     };
 
-    Dancer->dance;
+    Dancer2->runner->server->port($port);
+    start;
   },
 );
 
