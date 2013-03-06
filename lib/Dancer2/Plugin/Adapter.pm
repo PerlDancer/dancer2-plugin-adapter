@@ -15,11 +15,6 @@ my $conf;
 
 my %save_by_scope = (
   singleton => sub { $singletons{ $_[0] } = $_[1] },
-  session => sub {
-    my $hr = session("_dpa") || {};
-    $hr->{ $_[0] } = $_[1];
-    session( "_dpa", $hr );
-  },
   request => sub {
     my $hr = var("_dpa") || {};
     $hr->{ $_[0] } = $_[1];
@@ -30,7 +25,6 @@ my %save_by_scope = (
 
 my %fetch_by_scope = (
   singleton => sub { $singletons{ $_[0] } },
-  session   => sub { my $hr = session("_dpa") || {}; $hr->{ $_[0] }; },
   request   => sub { my $hr = var("_dpa") || {}; $hr->{ $_[0] }; },
   none      => sub { },
 );
@@ -165,12 +159,11 @@ to wrap.
 
 The 'scope' key determines how long the generated object persists.  The choice
 of scope will depend on whether the object holds onto any state that should not
-last across requests or users.  The following scope values are allowed:
+last across requests.  The following scope values are allowed:
 
 =for :list
 * C<request> -- (default) the object persists in the C<vars> hash for the duration of the request
 * C<singleton> -- the objects persists in a private, lexical hash for the duration of the process
-* C<session> -- the object persists in the C<session> hash for the duration of the session
 * C<none> -- the object is not cached; a fresh object is created on each call
 
 If the hash reference contains an 'options' key, its value will be dereferenced
@@ -205,8 +198,8 @@ can be specified with the 'constructor' key.
   # constructor called as:
   File::Temp->newdir()
 
-When caching under C<request> or C<session> scope, Dancer::Plugin::Adaptor uses
-the key C<_dpa> in the C<vars> or C<session> hash, respectively.
+When caching under C<request> scope, Dancer2::Plugin::Adaptor uses
+the key C<_dpa> in the C<vars>.
 
 =head1 USAGE
 
