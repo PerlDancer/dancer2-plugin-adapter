@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-Dancer::Plugin::Adapter - Wrap any simple class as a service for Dancer
+Dancer2::Plugin::Adapter - Wrap any simple class as a service for Dancer2
 
 =head1 VERSION
 
-version 0.004
+version 0.005
 
 =head1 SYNOPSIS
 
@@ -22,7 +22,7 @@ version 0.004
 
   # in your app
 
-  use Dancer::Plugin::Adapter;
+  use Dancer2::Plugin::Adapter;
 
   get '/proxy/:url' => sub {
     my $res = service('ua')->get( params->{'url'} );
@@ -36,11 +36,11 @@ version 0.004
 
 =head1 DESCRIPTION
 
-The problem: you want to use some perl class in your Dancer app, but there's
+The problem: you want to use some perl class in your Dancer2 app, but there's
 no plugin for it.
 
 The solution: as long as the class needs only static data to construct an
-object, then C<Dancer::Plugin::Adaptor> can do the wrapping for you.  Think
+object, then C<Dancer2::Plugin::Adaptor> can do the wrapping for you.  Think
 of it as a "just-in-time" plugin (or maybe a poor-man's L<Bread::Board>).
 
 Here's another example: you want to send emails via
@@ -73,7 +73,7 @@ Then, in your application, here's how you use it:
       return $@ ? "Error: $@" : "Mail sent";
     };
 
-C<Dancer::Plugin::Adapter> takes care of constructing and caching the
+C<Dancer2::Plugin::Adapter> takes care of constructing and caching the
 L<WWW::Postmark> object based on the configuration data, and lets you access
 the object with the C<service()> function.
 
@@ -87,7 +87,7 @@ to wrap.
 
 The 'scope' key determines how long the generated object persists.  The choice
 of scope will depend on whether the object holds onto any state that should not
-last across requests or users.  The following scope values are allowed:
+last across requests.  The following scope values are allowed:
 
 =over 4
 
@@ -98,10 +98,6 @@ C<request> -- (default) the object persists in the C<vars> hash for the duration
 =item *
 
 C<singleton> -- the objects persists in a private, lexical hash for the duration of the process
-
-=item *
-
-C<session> -- the object persists in the C<session> hash for the duration of the session
 
 =item *
 
@@ -141,8 +137,8 @@ can be specified with the 'constructor' key.
   # constructor called as:
   File::Temp->newdir()
 
-When caching under C<request> or C<session> scope, Dancer::Plugin::Adaptor uses
-the key C<_dpa> in the C<vars> or C<session> hash, respectively.
+When caching under C<request> scope, Dancer2::Plugin::Adaptor uses
+the key C<_dpa> in the C<vars>.
 
 =head1 USAGE
 
@@ -160,11 +156,11 @@ future use based on its C<scope> configuration option.
 
 =item *
 
-L<Dancer>
+L<Dancer2>
 
 =item *
 
-L<Dancer::Plugin>
+L<Dancer2::Plugin>
 
 =back
 
@@ -179,7 +175,7 @@ Thank you to Matt S. Trout for suggesting the 'scope' controls.
 =head2 Bugs / Feature Requests
 
 Please report any bugs or feature requests through the issue tracker
-at L<https://github.com/dagolden/dancer-plugin-adapter/issues>.
+at L<https://github.com/dagolden/dancer2-plugin-adapter/issues>.
 You will be notified automatically of any progress on your issue.
 
 =head2 Source Code
@@ -187,13 +183,17 @@ You will be notified automatically of any progress on your issue.
 This is open source software.  The code repository is available for
 public review and contribution under the terms of the license.
 
-L<https://github.com/dagolden/dancer-plugin-adapter>
+L<https://github.com/dagolden/dancer2-plugin-adapter>
 
-  git clone git://github.com/dagolden/dancer-plugin-adapter.git
+  git clone git://github.com/dagolden/dancer2-plugin-adapter.git
 
 =head1 AUTHOR
 
 David Golden <dagolden@cpan.org>
+
+=head1 CONTRIBUTOR
+
+Blabos de Blebe <blabos@blabos.org>
 
 =head1 COPYRIGHT AND LICENSE
 

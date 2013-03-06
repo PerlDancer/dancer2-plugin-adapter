@@ -1,6 +1,17 @@
-Revision history for Dancer-Plugin-Adapter
+Revision history for Dancer2-Plugin-Adapter
 
 {{$NEXT}}
+
+  [CHANGED]
+
+  - Forked into Dancer2::Plugin::Adaptor for proper Dancer2 support
+
+  [REMOVED]
+
+  - Removed 'session' scope because storing objects in session data is just
+    a bad idea all around.
+
+*** PRIOR HISTORY REFERS TO Dancer-Plugin-Adaptor ***
 
 0.004     2013-01-25 22:12:51 America/New_York
 
