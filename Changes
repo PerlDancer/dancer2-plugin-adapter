@@ -3,7 +3,7 @@ Revision history for Dancer2-Plugin-Adapter
 {{$NEXT}}
 
   [FIXED]
-
+  - Remove ':syntax' argument. (GH#3, mascip)
   - Bring plugin up-to-speed with current Dancer2. (GH#4, veryrusty)
 
 0.005     2013-03-06 14:38:55 America/New_York

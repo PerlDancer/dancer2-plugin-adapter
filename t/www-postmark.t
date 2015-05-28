@@ -15,7 +15,7 @@ HTTP::Tiny->new->get("http://api.postmarkapp.com/")->{success}
 
 {
   package Test::Adapter::WWWPostmark;
-  use Dancer2 ':syntax';
+  use Dancer2;
   use Dancer2::Plugin::Adapter;
 
   set show_errors => 0;

@@ -7,7 +7,7 @@ package Dancer2::Plugin::Adapter;
 # VERSION
 
 use Dancer2::Plugin;
-use Dancer2 ':syntax';
+use Dancer2;
 use Class::Load qw/try_load_class/;
 
 my %singletons;
