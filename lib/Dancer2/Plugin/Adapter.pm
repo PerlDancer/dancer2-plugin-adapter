@@ -164,10 +164,22 @@ The 'scope' key determines how long the generated object persists.  The choice
 of scope will depend on whether the object holds onto any state that should not
 last across requests.  The following scope values are allowed:
 
-=for :list
-* C<request> -- (default) the object persists in the C<vars> hash for the duration of the request
-* C<singleton> -- the objects persists in a private, lexical hash for the duration of the process
-* C<none> -- the object is not cached; a fresh object is created on each call
+=over
+
+=item C<request> 
+
+(default) the object persists in the C<vars> hash for the duration of the request
+
+=item C<singleton> 
+
+the objects persists in a private, lexical hash for the duration of the process
+
+
+=item C<none> 
+
+the object is not cached; a fresh object is created on each call
+
+=back
 
 If the hash reference contains an 'options' key, its value will be dereferenced
 (if it is a hash or array reference) and passed to C<new()> when the object is
@@ -216,9 +228,13 @@ future use based on its C<scope> configuration option.
 
 =head1 SEE ALSO
 
-=for :list
-* L<Dancer2>
-* L<Dancer2::Plugin>
+=over
+
+=item L<Dancer2>
+
+=item L<Dancer2::Plugin>
+
+=back
 
 =head1 ACKNOWLEDGMENTS
 
