@@ -13,24 +13,27 @@ use Class::Load qw/try_load_class/;
 my %singletons;
 my $conf;
 
+# called with ($dsl, $name, $object)
 my %save_by_scope = (
-  singleton => sub { $singletons{ $_[0] } = $_[1] },
-  request => sub {
-    my $hr = var("_dpa") || {};
+  singleton => sub { $singletons{ $_[1] } = $_[2] },
+  request   => sub {
+    my $dsl = shift;
+    my $hr = $dsl->var("_dpa") || {};
     $hr->{ $_[0] } = $_[1];
-    var( "_dpa", $hr );
+    $dsl->var( "_dpa", $hr );
   },
-  none => sub { },
+  none      => sub { },
 );
 
+# called with ($dsl, $name)
 my %fetch_by_scope = (
-  singleton => sub { $singletons{ $_[0] } },
-  request   => sub { my $hr = var("_dpa") || {}; $hr->{ $_[0] }; },
+  singleton => sub { $singletons{ $_[1] } },
+  request   => sub { my $hr = $_[0]->var("_dpa") || {}; $hr->{ $_[1] }; },
   none      => sub { },
 );
 
 register service => sub {
-  my ( $self, $name ) = plugin_args(@_);
+  my ( $dsl, $name ) = plugin_args(@_);
 
   unless ($name) {
     die "Dancer2::Plugin::Adapter::service() requires a name argument";
@@ -49,7 +52,7 @@ register service => sub {
   }
 
   # return cached object if already created
-  my $cached = $fetch_by_scope{$scope}->($name);
+  my $cached = $fetch_by_scope{$scope}->($dsl, $name);
   return $cached if defined $cached;
 
   # otherwise, instantiate the object from config settings
@@ -72,7 +75,7 @@ register service => sub {
     or die "Could not create $class object: $@";
 
   # cache by scope
-  $save_by_scope{$scope}->( $name, $object );
+  $save_by_scope{$scope}->( $dsl, $name, $object );
   return $object;
 };
 
