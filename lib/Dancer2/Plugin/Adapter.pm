@@ -3,9 +3,10 @@ use strict;
 use warnings;
 
 package Dancer2::Plugin::Adapter;
+our $AUTHORITY = 'cpan:YANICK';
 # ABSTRACT: Wrap any simple class as a service for Dancer2
 # VERSION
-
+$Dancer2::Plugin::Adapter::VERSION = '0.006';
 use Dancer2::Plugin;
 use Dancer2;
 use Class::Load qw/try_load_class/;
@@ -83,7 +84,22 @@ register_plugin for_versions => [ 2 ];
 
 1;
 
-=for Pod::Coverage method_names_here
+
+# vim: ts=2 sts=2 sw=2 et:
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Dancer2::Plugin::Adapter - Wrap any simple class as a service for Dancer2
+
+=head1 VERSION
+
+version 0.006
 
 =head1 SYNOPSIS
 
@@ -154,6 +170,8 @@ C<Dancer2::Plugin::Adapter> takes care of constructing and caching the
 L<WWW::Postmark> object based on the configuration data, and lets you access
 the object with the C<service()> function.
 
+=for Pod::Coverage method_names_here
+
 =head1 CONFIGURATION
 
 One or more objects are defined by C<< NAME => HASHREF >> pairs.  The hash
@@ -173,7 +191,6 @@ last across requests.  The following scope values are allowed:
 =item C<singleton> 
 
 the objects persists in a private, lexical hash for the duration of the process
-
 
 =item C<none> 
 
@@ -240,6 +257,16 @@ future use based on its C<scope> configuration option.
 
 Thank you to Matt S. Trout for suggesting the 'scope' controls.
 
-=cut
+=head1 AUTHOR
 
-# vim: ts=2 sts=2 sw=2 et:
+David Golden <dagolden@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2012 by David Golden.
+
+This is free software, licensed under:
+
+  The Apache License, Version 2.0, January 2004
+
+=cut
