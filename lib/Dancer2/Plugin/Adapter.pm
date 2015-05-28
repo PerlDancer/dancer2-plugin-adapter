@@ -4,7 +4,7 @@ use warnings;
 
 package Dancer2::Plugin::Adapter;
 # ABSTRACT: Wrap any simple class as a service for Dancer2
-# VERSION
+our $VERSION = '0.005'; # VERSION
 
 use Dancer2::Plugin;
 use Dancer2 ':syntax';
@@ -80,7 +80,20 @@ register_plugin for_versions => [ 2 ];
 
 1;
 
-=for Pod::Coverage method_names_here
+
+# vim: ts=2 sts=2 sw=2 et:
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Dancer2::Plugin::Adapter - Wrap any simple class as a service for Dancer2
+
+=head1 VERSION
+
+version 0.005
 
 =head1 SYNOPSIS
 
@@ -151,6 +164,8 @@ C<Dancer2::Plugin::Adapter> takes care of constructing and caching the
 L<WWW::Postmark> object based on the configuration data, and lets you access
 the object with the C<service()> function.
 
+=for Pod::Coverage method_names_here
+
 =head1 CONFIGURATION
 
 One or more objects are defined by C<< NAME => HASHREF >> pairs.  The hash
@@ -161,10 +176,21 @@ The 'scope' key determines how long the generated object persists.  The choice
 of scope will depend on whether the object holds onto any state that should not
 last across requests.  The following scope values are allowed:
 
-=for :list
-* C<request> -- (default) the object persists in the C<vars> hash for the duration of the request
-* C<singleton> -- the objects persists in a private, lexical hash for the duration of the process
-* C<none> -- the object is not cached; a fresh object is created on each call
+=over 4
+
+=item *
+
+C<request> -- (default) the object persists in the C<vars> hash for the duration of the request
+
+=item *
+
+C<singleton> -- the objects persists in a private, lexical hash for the duration of the process
+
+=item *
+
+C<none> -- the object is not cached; a fresh object is created on each call
+
+=back
 
 If the hash reference contains an 'options' key, its value will be dereferenced
 (if it is a hash or array reference) and passed to C<new()> when the object is
@@ -213,14 +239,55 @@ future use based on its C<scope> configuration option.
 
 =head1 SEE ALSO
 
-=for :list
-* L<Dancer2>
-* L<Dancer2::Plugin>
+=over 4
+
+=item *
+
+L<Dancer2>
+
+=item *
+
+L<Dancer2::Plugin>
+
+=back
 
 =head1 ACKNOWLEDGMENTS
 
 Thank you to Matt S. Trout for suggesting the 'scope' controls.
 
-=cut
+=for :stopwords cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata placeholders metacpan
 
-# vim: ts=2 sts=2 sw=2 et:
+=head1 SUPPORT
+
+=head2 Bugs / Feature Requests
+
+Please report any bugs or feature requests through the issue tracker
+at L<https://github.com/dagolden/dancer2-plugin-adapter/issues>.
+You will be notified automatically of any progress on your issue.
+
+=head2 Source Code
+
+This is open source software.  The code repository is available for
+public review and contribution under the terms of the license.
+
+L<https://github.com/dagolden/dancer2-plugin-adapter>
+
+  git clone git://github.com/dagolden/dancer2-plugin-adapter.git
+
+=head1 AUTHOR
+
+David Golden <dagolden@cpan.org>
+
+=head1 CONTRIBUTOR
+
+Blabos de Blebe <blabos@blabos.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2012 by David Golden.
+
+This is free software, licensed under:
+
+  The Apache License, Version 2.0, January 2004
+
+=cut
