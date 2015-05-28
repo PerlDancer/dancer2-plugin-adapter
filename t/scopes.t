@@ -4,7 +4,9 @@ use Test::More 0.96 import => ['!pass'];
 
 use Plack::Test;
 use HTTP::Request::Common;
-use HTTP::Cookies;
+
+plan skip_all => 'module HTTP::Cookies required'
+    unless eval "use HTTP::Cookies; 1";
 
 use File::Temp 0.19; # newdir
 use JSON;
