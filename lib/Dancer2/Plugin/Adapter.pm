@@ -10,28 +10,11 @@ use Dancer2::Plugin2;
 use List::Util qw/ pairmap /;
 use Class::Load qw/try_load_class/;
 
+plugin_keywords 'service';
+
 has singletons => (
   is => 'ro',
   default => sub { {} },
-);
-
-# called with ($dsl, $name, $object)
-my %save_by_scope = (
-  singleton => sub { $_[0]->singletons->{ $_[1] } = $_[2] },
-  request   => sub {
-    my $plugin = shift;
-    my $hr = $plugin->app->request->var("_dpa") || {};
-    $hr->{ $_[0] } = $_[1];
-    $plugin->app->request->var( "_dpa", $hr );
-  },
-  none      => sub { },
-);
-
-# called with ($dsl, $name)
-my %fetch_by_scope = (
-  singleton => sub { $_[0]->singletons->{ $_[1] } },
-  request   => sub { my $hr = $_[0]->app->request->var("_dpa") || {}; $hr->{ $_[1] }; },
-  none      => sub { },
 );
 
 has services => (
@@ -40,7 +23,13 @@ has services => (
   builder => '_build_services',
 );
 
-plugin_keywords 'service';
+sub _build_services {
+  my $plugin = shift;
+
+  return {
+    pairmap { $a => $plugin->_build_service( $a => $b ) } %{ $plugin->config }
+  };
+}
 
 sub _build_service {
   my( $plugin, $name, $args ) = @_;
@@ -68,8 +57,9 @@ sub _build_service {
         or die "Could not create $class object: $@";
     };
 
-    # fetch cached, create new, save
-    return [ sub{}, $create, sub{shift} ] if $scope eq 'none';
+           # each service has 3 functions:
+           # fetch cached, create new, save
+    return [ sub{},        $create,    sub{shift} ] if $scope eq 'none';
 
     return [
       sub { my $hr = $plugin->app->request->var("_dpa") || {}; $hr->{ $name }; },
@@ -91,21 +81,11 @@ sub _build_service {
     die "Scope '$scope' for '$name' is invalid";
 }
 
-sub _build_services {
-  my $plugin = shift;
-
-  return {
-    pairmap { $a => $plugin->_build_service( $a => $b ) } %{ $plugin->config }
-  };
-}
-
 sub service {
   my ( $plugin, $name ) = @_;
 
   die "Dancer2::Plugin::Adapter::service() requires a name argument"
     unless $name;
-
-  my $conf = $plugin->config;
 
   # ensure service is defined
   my $service = $plugin->services->{$name}
