@@ -7,6 +7,7 @@ package Dancer2::Plugin::Adapter;
 
 use Dancer2::Plugin2;
 
+use List::Util qw/ pairmap /;
 use Class::Load qw/try_load_class/;
 
 has singletons => (
@@ -33,7 +34,70 @@ my %fetch_by_scope = (
   none      => sub { },
 );
 
+has services => (
+  is => 'ro',
+  lazy => 1,
+  builder => '_build_services',
+);
+
 plugin_keywords 'service';
+
+sub _build_service {
+  my( $plugin, $name, $args ) = @_;
+  
+    # set scope, but default to 'request' if not set
+    my $scope = $args->{scope} || 'request';
+
+    my $create = sub {
+      my $class = $args->{class}
+        or die "No class specified for Adapter '$name'";
+
+      try_load_class($class)
+        or die "Module '$class' could not be loaded";
+
+      my $new = $args->{constructor} || 'new';
+      my $options = $args->{options};
+
+      my @options =
+          ref($options) eq 'HASH'  ? %$options
+        : ref($options) eq 'ARRAY' ? @$options
+        : defined($options) ? $options
+        :                     ();
+
+      eval { $class->$new(@options) }
+        or die "Could not create $class object: $@";
+    };
+
+    # fetch cached, create new, save
+    return [ sub{}, $create, sub{shift} ] if $scope eq 'none';
+
+    return [
+      sub { my $hr = $plugin->app->request->var("_dpa") || {}; $hr->{ $name }; },
+      $create,
+      sub {
+        my $hr = $plugin->app->request->var("_dpa") || {};
+        $hr->{ $name } = $_[0];
+        $plugin->app->request->var( "_dpa", $hr );
+        $_[0];
+      },
+    ] if $scope eq 'request';
+
+    return [
+      sub { $plugin->singletons->{ $name } },
+      $create,
+      sub { $plugin->singletons->{ $name } = shift },
+    ] if $scope eq 'singleton';
+
+    die "Scope '$scope' for '$name' is invalid";
+}
+
+sub _build_services {
+  my $plugin = shift;
+
+  return {
+    pairmap { $a => $plugin->_build_service( $a => $b ) } %{ $plugin->config }
+  };
+}
 
 sub service {
   my ( $plugin, $name ) = @_;
@@ -44,41 +108,16 @@ sub service {
   my $conf = $plugin->config;
 
   # ensure service is defined
-  my $object_conf = $conf->{$name}
+  my $service = $plugin->services->{$name}
     or die "No configuration for Adapter '$name'";
 
-  # set scope, but default to 'request' if not set
-  my $scope = $conf->{$name}{scope} || 'request';
-  unless ( $fetch_by_scope{$scope} ) {
-    die "Scope '$scope' is invalid";
-  }
-
   # return cached object if already created
-  my $cached = $fetch_by_scope{$scope}->($plugin, $name);
+  my $cached = $service->[0]->();
   return $cached if defined $cached;
 
   # otherwise, instantiate the object from config settings
-  my $class = $object_conf->{class}
-    or die "No class specified for Adapter '$name'";
-
-  try_load_class($class)
-    or die "Module '$class' could not be loaded";
-
-  my $new = $object_conf->{constructor} || 'new';
-  my $options = $object_conf->{options};
-
-  my @options =
-      ref($options) eq 'HASH'  ? %$options
-    : ref($options) eq 'ARRAY' ? @$options
-    : defined($options) ? $options
-    :                     ();
-
-  my $object = eval { $class->$new(@options) }
-    or die "Could not create $class object: $@";
-
-  # cache by scope
-  $save_by_scope{$scope}->( $plugin, $name, $object );
-  return $object;
+  # and cache by scope
+  return $service->[2]->( $service->[1]->() );
 };
 
 1;
