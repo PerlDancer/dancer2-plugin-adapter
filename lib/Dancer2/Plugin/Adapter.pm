@@ -4,42 +4,44 @@ use warnings;
 
 package Dancer2::Plugin::Adapter;
 # ABSTRACT: Wrap any simple class as a service for Dancer2
-# VERSION
 
-use Dancer2::Plugin;
-use Dancer2;
+use Dancer2::Plugin2;
+
 use Class::Load qw/try_load_class/;
 
-my %singletons;
-my $conf;
+has singletons => (
+  is => 'ro',
+  default => sub { {} },
+);
 
 # called with ($dsl, $name, $object)
 my %save_by_scope = (
-  singleton => sub { $singletons{ $_[1] } = $_[2] },
+  singleton => sub { $_[0]->singletons->{ $_[1] } = $_[2] },
   request   => sub {
-    my $dsl = shift;
-    my $hr = $dsl->var("_dpa") || {};
+    my $plugin = shift;
+    my $hr = $plugin->app->request->var("_dpa") || {};
     $hr->{ $_[0] } = $_[1];
-    $dsl->var( "_dpa", $hr );
+    $plugin->app->request->var( "_dpa", $hr );
   },
   none      => sub { },
 );
 
 # called with ($dsl, $name)
 my %fetch_by_scope = (
-  singleton => sub { $singletons{ $_[1] } },
-  request   => sub { my $hr = $_[0]->var("_dpa") || {}; $hr->{ $_[1] }; },
+  singleton => sub { $_[0]->singletons->{ $_[1] } },
+  request   => sub { my $hr = $_[0]->app->request->var("_dpa") || {}; $hr->{ $_[1] }; },
   none      => sub { },
 );
 
-register service => sub {
-  my ( $dsl, $name ) = plugin_args(@_);
+plugin_keywords 'service';
 
-  unless ($name) {
-    die "Dancer2::Plugin::Adapter::service() requires a name argument";
-  }
+sub service {
+  my ( $plugin, $name ) = @_;
 
-  $conf ||= plugin_setting();
+  die "Dancer2::Plugin::Adapter::service() requires a name argument"
+    unless $name;
+
+  my $conf = $plugin->config;
 
   # ensure service is defined
   my $object_conf = $conf->{$name}
@@ -52,7 +54,7 @@ register service => sub {
   }
 
   # return cached object if already created
-  my $cached = $fetch_by_scope{$scope}->($dsl, $name);
+  my $cached = $fetch_by_scope{$scope}->($plugin, $name);
   return $cached if defined $cached;
 
   # otherwise, instantiate the object from config settings
@@ -75,15 +77,13 @@ register service => sub {
     or die "Could not create $class object: $@";
 
   # cache by scope
-  $save_by_scope{$scope}->( $dsl, $name, $object );
+  $save_by_scope{$scope}->( $plugin, $name, $object );
   return $object;
 };
 
-register_plugin for_versions => [ 2 ];
-
 1;
 
-=for Pod::Coverage method_names_here
+__END__
 
 =head1 SYNOPSIS
 
@@ -225,16 +225,6 @@ the key C<_dpa> in the C<vars>.
 This function returns the object corresponding to the name defined in the
 configuration file.  The object is created on demand and may be cached for
 future use based on its C<scope> configuration option.
-
-=head1 SEE ALSO
-
-=over
-
-=item L<Dancer2>
-
-=item L<Dancer2::Plugin>
-
-=back
 
 =head1 ACKNOWLEDGMENTS
 
