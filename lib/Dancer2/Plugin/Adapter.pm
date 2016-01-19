@@ -7,7 +7,6 @@ package Dancer2::Plugin::Adapter;
 # VERSION
 
 use Dancer2::Plugin;
-use Dancer2;
 use Class::Load qw/try_load_class/;
 
 my %singletons;
@@ -18,9 +17,9 @@ my %save_by_scope = (
   singleton => sub { $singletons{ $_[1] } = $_[2] },
   request   => sub {
     my $dsl = shift;
-    my $hr = $dsl->var("_dpa") || {};
+    my $hr = $dsl->app->request->var("_dpa") || {};
     $hr->{ $_[0] } = $_[1];
-    $dsl->var( "_dpa", $hr );
+    $dsl->app->request->var( "_dpa", $hr );
   },
   none      => sub { },
 );
@@ -28,12 +27,12 @@ my %save_by_scope = (
 # called with ($dsl, $name)
 my %fetch_by_scope = (
   singleton => sub { $singletons{ $_[1] } },
-  request   => sub { my $hr = $_[0]->var("_dpa") || {}; $hr->{ $_[1] }; },
+  request   => sub { my $hr = $_[0]->app->request->var("_dpa") || {}; $hr->{ $_[1] }; },
   none      => sub { },
 );
 
 register service => sub {
-  my ( $dsl, $name ) = plugin_args(@_);
+  my ( $dsl, $name ) = @_;
 
   unless ($name) {
     die "Dancer2::Plugin::Adapter::service() requires a name argument";
