@@ -1,20 +1,11 @@
 Revision history for Dancer2-Plugin-Adapter
 
-{{$NEXT}}
-    - Make changes to have the plugin compatible with the new
-      backward-compatible interface. (GH#5, Peter Mottram)
-
-  [ API CHANGES ]
-
-  [ BUG FIXES ]
-
-  [ DOCUMENTATION ]
-
-  [ ENHANCEMENTS ]
-
-  [ NEW FEATURES ]
+0.007 2016-01-19
+  - Make changes to have the plugin compatible with the new
+    backward-compatible interface. (GH#5, Peter Mottram)
 
   [ STATISTICS ]
+    - code churn: 4 files changed, 45 insertions(+), 39 deletions(-)
 
 0.006 2015-05-28
   [ FIXED ]
