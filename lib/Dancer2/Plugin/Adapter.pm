@@ -7,7 +7,7 @@ package Dancer2::Plugin::Adapter;
 # VERSION
 
 use Dancer2::Plugin;
-use Class::Load qw/try_load_class/;
+use Module::Runtime qw/use_module/;
 
 my %singletons;
 my $conf;
@@ -58,7 +58,7 @@ register service => sub {
   my $class = $object_conf->{class}
     or die "No class specified for Adapter '$name'";
 
-  try_load_class($class)
+  eval { use_module($class); 1 }
     or die "Module '$class' could not be loaded";
 
   my $new = $object_conf->{constructor} || 'new';
